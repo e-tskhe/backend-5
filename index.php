@@ -39,12 +39,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
     {
         // Удаляем куку, указывая время устаревания в прошлом.
         setcookie('save', '', 100000);
-        setcookie('login', '', 100000);
-        setcookie('password', '', 100000);
+
         // Выводим сообщение пользователю.
         $messages[] = 'Спасибо, результаты сохранены.';
         // Если в куках есть пароль, то выводим сообщение.
-        if (!empty($_COOKIE['password']))
+        if (!empty($_COOKIE['password']) && !empty($_COOKIE['login']))
         {
             $messages[] = sprintf('Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong>
         и паролем <strong>%s</strong> для изменения данных.', strip_tags($_COOKIE['login']) , strip_tags($_COOKIE['password']));
@@ -115,8 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
     $values['bio'] = empty($_COOKIE['bio_value']) ? '' : strip_tags($_COOKIE['bio_value']);
     $values['agreement'] = empty($_COOKIE['agreement_value']) ? '' : strip_tags($_COOKIE['agreement_value']);
 
-    
-    if (!empty($_SESSION['login'])) {
+    if (!empty($_SESSION['login']))
+    {
         try
         {
             $user = 'u68891';
@@ -149,14 +148,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
         }
         printf('Вход с логином %s, uid %d', $_SESSION['login'], $_SESSION['uid']);
     }
-
     // Включаем содержимое файла form.php.
     // В нем будут доступны переменные $messages, $errors и $values для вывода
     // сообщений, полей с ранее заполненными данными и признаками ошибок.
     include ('form.php');
 }
 // Иначе, если запрос был методом POST, т.е. нужно проверить данные и сохранить их в базе данных.
-else {
+else
+{
     // Проверяем ошибки.
     $errors = false;
     if (empty($_POST['name']))
@@ -277,78 +276,75 @@ else {
         $user = 'u68891';
         $pass = '3849293';
         $pdo = new PDO('mysql:host=localhost;dbname=u68891', $user, $pass, [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-        // Проверяем меняются ли ранее сохраненные данные или отправляются новые.
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        if (!empty($_COOKIE[session_name() ]) && !empty($_SESSION['login']))
+
+        if (!empty($_SESSION['login']))
         {
-            if (!empty($_SESSION['login']))
-            {
-                // Обновление существующей записи
-                $stmt = $pdo->prepare("UPDATE application SET name = ?, phone = ?, email = ?, 
+            // Обновление существующей записи
+            $stmt = $pdo->prepare("UPDATE application SET name = ?, phone = ?, email = ?, 
                                  birthdate = ?, gender = ?, bio = ? WHERE user_id = ?");
-                $stmt->execute([$_POST['name'], $_POST['phone'], $_POST['email'], $_POST['birthdate'], $_POST['gender'], $_POST['bio'], $_SESSION['uid']]);
+            $stmt->execute([$_POST['name'], $_POST['phone'], $_POST['email'], $_POST['birthdate'], $_POST['gender'], $_POST['bio'], $_SESSION['uid']]);
 
-                $stmt = $pdo->prepare("DELETE FROM application_language WHERE application_id IN 
+            $stmt = $pdo->prepare("DELETE FROM application_language WHERE application_id IN 
                                  (SELECT id FROM application WHERE user_id = ?)");
-                $stmt->execute([$_SESSION['uid']]);
+            $stmt->execute([$_SESSION['uid']]);
 
-                $appId = $pdo->query("SELECT id FROM application WHERE user_id = " . $_SESSION['uid'])->fetchColumn();
-                $langStmt = $pdo->prepare("INSERT INTO programming_language (name) VALUES (?) 
+            $appId = $pdo->query("SELECT id FROM application WHERE user_id = " . $_SESSION['uid'])->fetchColumn();
+            $langStmt = $pdo->prepare("INSERT INTO programming_language (name) VALUES (?) 
                                       ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)");
-                $appLangStmt = $pdo->prepare("INSERT INTO application_language (application_id, language_id) 
+            $appLangStmt = $pdo->prepare("INSERT INTO application_language (application_id, language_id) 
                                          VALUES (?, ?)");
 
-                foreach ($_POST['languages'] as $langName)
-                {
-                    $langStmt->execute([$langName]);
-                    $langId = $pdo->lastInsertId();
-                    $appLangStmt->execute([$appId, $langId]);
-                }
-            }
-            else
+            foreach ($_POST['languages'] as $langName)
             {
-                // Генерируем уникальный логин и пароль.
-                $login = generateLogin();
-                $password = generatePassword();
-                $passwordHash = md5($password);
-
-                // Сохраняем в куки.
-                setcookie('login', $login);
-                setcookie('password', $password);
-
-                // Сохранение данных формы, логина и хеш md5() пароля в базу данных.
-                $userStmt = $pdo->prepare("INSERT INTO users (username, password_hash) VALUES (?, ?)");
-                $userStmt->execute([$login, $passwordHash]);
-                $userId = $pdo->lastInsertId();
-
-                $stmt = $pdo->prepare("INSERT INTO application (user_id, name, phone, email, 
-                                 birthdate, gender, bio) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$userId, $_POST['name'], $_POST['phone'], $_POST['email'], $_POST['birthdate'], $_POST['gender'], $_POST['bio']]);
-                $appId = $pdo->lastInsertId();
-
-                $langStmt = $pdo->prepare("INSERT INTO programming_language (name) VALUES (?) 
-                                      ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)");
-                $appLangStmt = $pdo->prepare("INSERT INTO application_language (application_id, language_id) 
-                                         VALUES (?, ?)");
-
-                foreach ($_POST['languages'] as $langName)
-                {
-                    $langStmt->execute([$langName]);
-                    $langId = $pdo->lastInsertId();
-                    $appLangStmt->execute([$appId, $langId]);
-                }
+                $langStmt->execute([$langName]);
+                $langId = $pdo->lastInsertId();
+                $appLangStmt->execute([$appId, $langId]);
             }
-            // Сохраняем куку с признаком успешного сохранения.
-            setcookie('save', '1');
-
-            // Делаем перенаправление.
-            header('Location: index.php');
         }
+        else
+        {
+            // Генерируем уникальный логин и пароль.
+            $login = generateLogin();
+            $password = generatePassword();
+            $passwordHash = md5($password);
+
+            // Сохраняем в куки.
+            setcookie('login', $login, time() + 30 * 24 * 60 * 60);
+            setcookie('password', $password, time() + 30 * 24 * 60 * 60);
+
+            // Сохранение данных формы, логина и хеш md5() пароля в базу данных.
+            $userStmt = $pdo->prepare("INSERT INTO users (username, password_hash) VALUES (?, ?)");
+            $userStmt->execute([$login, $passwordHash]);
+            $userId = $pdo->lastInsertId();
+
+            $stmt = $pdo->prepare("INSERT INTO application (user_id, name, phone, email, 
+                                 birthdate, gender, bio) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$userId, $_POST['name'], $_POST['phone'], $_POST['email'], $_POST['birthdate'], $_POST['gender'], $_POST['bio']]);
+            $appId = $pdo->lastInsertId();
+
+            $langStmt = $pdo->prepare("INSERT INTO programming_language (name) VALUES (?) 
+                                  ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)");
+            $appLangStmt = $pdo->prepare("INSERT INTO application_language (application_id, language_id) 
+                                     VALUES (?, ?)");
+
+            foreach ($_POST['languages'] as $langName)
+            {
+                $langStmt->execute([$langName]);
+                $langId = $pdo->lastInsertId();
+                $appLangStmt->execute([$appId, $langId]);
+            }
+        }
+        // Сохраняем куку с признаком успешного сохранения.
+        setcookie('save', '1');
+
+        // Делаем перенаправление.
+        header('Location: index.php');
+        exit();
+
     }
     catch(PDOException $e)
     {
+        $messages = array();
         $messages[] = 'Ошибка базы данных: ' . $e->getMessage();
         include ('form.php');
     }
