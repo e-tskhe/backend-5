@@ -97,7 +97,8 @@ else {
         $error = "Ошибка базы данных: " . $e->getMessage();
     }
 }
-
+?>
+  
 <!DOCTYPE html>
 <html lang="ru">
 <head>
