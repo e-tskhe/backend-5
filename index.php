@@ -117,7 +117,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
 
     // Если нет предыдущих ошибок ввода, есть кука сессии, начали сессию и
     // ранее в сессию записан факт успешного логина.
-    if (empty($errors) && !empty($_COOKIE[session_name() ]) && session_start() && !empty($_SESSION['login']))
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    if (empty($errors) && !empty($_COOKIE[session_name() ]) && !empty($_SESSION['login']))
     {
         try
         {
@@ -280,7 +283,10 @@ else {
         $pass = '3849293';
         $pdo = new PDO('mysql:host=localhost;dbname=u68891', $user, $pass, [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
         // Проверяем меняются ли ранее сохраненные данные или отправляются новые.
-        if (!empty($_COOKIE[session_name() ]) && session_start() && !empty($_SESSION['login']))
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (!empty($_COOKIE[session_name() ]) && !empty($_SESSION['login']))
         {
             if (!empty($_SESSION['login']))
             {
