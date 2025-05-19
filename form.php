@@ -30,13 +30,13 @@
             <?php endif; ?>
             
             <div class="form-group">
-                <label for="auth_login">Логин:</label>
-                <input type="text" id="auth_login" name="auth_login" required>
+                <label for="login">Логин:</label>
+                <input type="text" id="login" name="login" required>
             </div>
-            
+
             <div class="form-group">
-                <label for="auth_pass">Пароль:</label>
-                <input type="password" id="auth_pass" name="auth_pass" required>
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
             </div>
             
             <button type="submit" class="auth-btn">Войти</button>

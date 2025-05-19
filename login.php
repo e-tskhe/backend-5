@@ -12,6 +12,8 @@
 // файл login.php должен быть в кодировке UTF-8 без BOM.
 header('Content-Type: text/html; charset=UTF-8');
 
+$error = '';
+
 // В суперглобальном массиве $_SESSION хранятся переменные сессии.
 // Будем сохранять туда логин после успешной авторизации.
 $session_started = false;
@@ -20,7 +22,7 @@ if (session_start()) {
   if (!empty($_SESSION['login'])) {
     // Если есть логин в сессии, то пользователь уже авторизован.
     // Делаем перенаправление на форму.
-    header('Location: ./');
+    header('Location: index.php');
     exit();
   }
 }
@@ -53,9 +55,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 }
 // Иначе, если запрос был методом POST, т.е. нужно сделать авторизацию с записью логина в сессию.
 else {
-  // TODO: Проверть есть ли такой логин и пароль в базе данных.
-  // Выдать сообщение об ошибках.
-
+    if (empty($_POST['login'])) {
+        $error = 'Введите логин';
+    }
+    elseif (empty($_POST['password'])) {
+        $error = 'Введите пароль';
+    }
+    else {
   // Подключение к БД
     $user = 'u68891'; 
     $pass = '3849293'; 
@@ -85,9 +91,53 @@ else {
             exit();
         } else {
             // Неверный логин/пароль
-            $error = "Неверный логин или пароль";
+            $error = "Неверный пароль";
         }
+    } else {
+        $error = 'Пользователь не найден';
+    }
     } catch (PDOException $e) {
         $error = "Ошибка базы данных: " . $e->getMessage();
     }
 }
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход в систему</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="auth-section">
+        <form method="POST" class="auth-form">
+            <h3>Вход в систему</h3>
+            
+            <?php if (!empty($error)): ?>
+                <div class="error"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
+            
+            <div class="form-group">
+                <label for="login">Логин:</label>
+                <input type="text" id="login" name="login" required 
+                       value="<?= !empty($_POST['login']) ? htmlspecialchars($_POST['login']) : '' ?>">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="auth-btn">Войти</button>
+            
+            <?php if (!empty($_COOKIE['login']) && !empty($_COOKIE['password'])): ?>
+                <div class="auth-hint">
+                    Ваши данные для входа:<br>
+                    Логин: <?= htmlspecialchars($_COOKIE['login']) ?><br>
+                    Пароль: <?= htmlspecialchars($_COOKIE['password']) ?>
+                </div>
+            <?php endif; ?>
+        </form>
+    </div>
+</body>
+</html>
