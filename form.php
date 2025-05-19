@@ -20,7 +20,7 @@
     <?php if (!empty($_SESSION['login'])): ?>
         <div class="auth-info">
             Вы вошли как: <strong><?= htmlspecialchars($_SESSION['login']) ?></strong>
-            <a href="?logout=1" class="logout-btn">Выйти</a>
+            <a href="logout.php" class="logout-btn">Выйти</a>
         </div>
     <?php else: ?>
         <form method="POST" class="auth-form">
