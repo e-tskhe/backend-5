@@ -29,13 +29,26 @@ if (session_start()) {
 // и другие сведения о клиненте и сервере, например метод текущего запроса $_SERVER['REQUEST_METHOD'].
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 ?>
-
-<form action="" method="post">
-  <input name="login" />
-  <input name="password" />
-  <input type="submit" value="Войти" />
-</form>
-
+<div class="auth-section">
+    <form method="POST" class="auth-form">
+        <h3>Вход в систему</h3>
+        <?php if (!empty($error)): ?>
+            <div class="error"><?= $error ?></div>
+        <?php endif; ?>
+        
+        <div class="form-group">
+            <label for="login">Логин:</label>
+            <input type="text" id="login" name="login" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <button type="submit" class="auth-btn">Войти</button>
+    </form>
+</div>
 <?php
 }
 // Иначе, если запрос был методом POST, т.е. нужно сделать авторизацию с записью логина в сессию.
