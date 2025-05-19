@@ -115,13 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
     $values['bio'] = empty($_COOKIE['bio_value']) ? '' : strip_tags($_COOKIE['bio_value']);
     $values['agreement'] = empty($_COOKIE['agreement_value']) ? '' : strip_tags($_COOKIE['agreement_value']);
 
-    // Если нет предыдущих ошибок ввода, есть кука сессии, начали сессию и
-    // ранее в сессию записан факт успешного логина.
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    if (empty($errors) && !empty($_COOKIE[session_name() ]) && !empty($_SESSION['login']))
-    {
+    
+    if (!empty($_SESSION['login'])) {
         try
         {
             $user = 'u68891';
@@ -187,7 +182,7 @@ else {
     }
     else
     {
-        setcookie('phone_value', $_POST['phone'], time() + 365 * 24 * 60 * 60);
+        setcookie('phone_value', $_POST['phone'], time() + 30 * 24 * 60 * 60);
     }
 
     if (empty($_POST['email']))
@@ -202,7 +197,7 @@ else {
     }
     else
     {
-        setcookie('email_value', $_POST['email'], time() + 365 * 24 * 60 * 60);
+        setcookie('email_value', $_POST['email'], time() + 30 * 24 * 60 * 60);
     }
     if (empty($_POST['birthdate']))
     {
@@ -211,7 +206,7 @@ else {
     }
     else
     {
-        setcookie('birthdate_value', $_POST['birthdate'], time() + 365 * 24 * 60 * 60);
+        setcookie('birthdate_value', $_POST['birthdate'], time() + 30 * 24 * 60 * 60);
     }
 
     if (empty($_POST['gender']))
@@ -221,7 +216,7 @@ else {
     }
     else
     {
-        setcookie('gender_value', $_POST['gender'], time() + 365 * 24 * 60 * 60);
+        setcookie('gender_value', $_POST['gender'], time() + 30 * 24 * 60 * 60);
     }
 
     if (empty($_POST['languages']))
@@ -231,7 +226,7 @@ else {
     }
     else
     {
-        setcookie('languages_value', serialize($_POST['languages']) , time() + 365 * 24 * 60 * 60);
+        setcookie('languages_value', serialize($_POST['languages']) , time() + 30 * 24 * 60 * 60);
     }
     if (empty($_POST['bio']))
     {
@@ -245,7 +240,7 @@ else {
     }
     else
     {
-        setcookie('bio_value', $_POST['bio'], time() + 365 * 24 * 60 * 60);
+        setcookie('bio_value', $_POST['bio'], time() + 30 * 24 * 60 * 60);
     }
 
     if (empty($_POST['agreement']))
@@ -255,7 +250,7 @@ else {
     }
     else
     {
-        setcookie('agreement_value', $_POST['agreement'], time() + 365 * 24 * 60 * 60);
+        setcookie('agreement_value', $_POST['agreement'], time() + 30 * 24 * 60 * 60);
     }
 
     if ($errors)
@@ -295,12 +290,10 @@ else {
                                  birthdate = ?, gender = ?, bio = ? WHERE user_id = ?");
                 $stmt->execute([$_POST['name'], $_POST['phone'], $_POST['email'], $_POST['birthdate'], $_POST['gender'], $_POST['bio'], $_SESSION['uid']]);
 
-                // Удаляем старые языки
                 $stmt = $pdo->prepare("DELETE FROM application_language WHERE application_id IN 
                                  (SELECT id FROM application WHERE user_id = ?)");
                 $stmt->execute([$_SESSION['uid']]);
 
-                // Добавляем новые языки
                 $appId = $pdo->query("SELECT id FROM application WHERE user_id = " . $_SESSION['uid'])->fetchColumn();
                 $langStmt = $pdo->prepare("INSERT INTO programming_language (name) VALUES (?) 
                                       ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)");
@@ -321,7 +314,7 @@ else {
                 $password = generatePassword();
                 $passwordHash = md5($password);
 
-                // Сохраняем в Cookies.
+                // Сохраняем в куки.
                 setcookie('login', $login);
                 setcookie('password', $password);
 
