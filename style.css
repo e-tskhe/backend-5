@@ -8,7 +8,7 @@ body {
 
 .formular {
     max-width: 600px;
-    margin: 0 auto;
+    margin: 20px auto;
     background-color: white;
     padding: 30px;
     border-radius: 10px;
@@ -24,7 +24,7 @@ body {
 
 .container {
     margin-bottom: 20px;
-    position: relative; /* Для позиционирования сообщений об ошибках */
+    /* position: relative;  */
 }
 
 .container label {
@@ -34,7 +34,6 @@ body {
     color: #2c3e50;
 }
 
-/* Базовые стили для полей ввода */
 input[type="text"],
 input[type="tel"],
 input[type="email"],
@@ -50,16 +49,7 @@ textarea {
     transition: all 0.3s ease;
 }
 
-/* Стили для ошибочных полей */
-input.error,
-select.error,
-textarea.error {
-    border: 2px solid #ff3860 !important;
-    animation: pulse 0.5s;
-}
 
-
-/* Стили для сообщений об ошибках */
 .messages {
     color: #ff3860;
     font-size: 0.85em;
@@ -68,20 +58,11 @@ textarea.error {
     display: block;
 }
 
-/* Группа radio кнопок */
 #gender {
     display: flex;
     gap: 20px;
     margin-top: 8px;
     padding: 8px 0;
-}
-
-/* Стиль для группы radio с ошибкой */
-#gender.error {
-    border: 2px solid #ff3860;
-    border-radius: 5px;
-    padding: 8px;
-    margin-top: 0;
 }
 
 #gender label {
@@ -98,7 +79,6 @@ textarea.error {
     height: 16px;
 }
 
-/* Множественный select */
 select[multiple] {
     height: auto;
     min-height: 100px;
@@ -108,13 +88,11 @@ select[multiple] option {
     padding: 8px;
 }
 
-/* Textarea */
 textarea {
     resize: vertical;
     min-height: 100px;
 }
 
-/* Чекбокс */
 input[type="checkbox"] {
     margin-right: 8px;
     width: 16px;
@@ -122,8 +100,7 @@ input[type="checkbox"] {
     vertical-align: middle;
 }
 
-/* Кнопка отправки */
-button[type="submit"] {
+#send_btn {
     background-color: #3498db;
     color: white;
     border: none;
@@ -137,11 +114,6 @@ button[type="submit"] {
     margin-top: 10px;
 }
 
-button[type="submit"]:hover {
-    background-color: #2980b9;
-}
-
-/* Сообщения системы */
 #messages {
     margin-bottom: 20px;
     padding: 15px;
@@ -157,11 +129,57 @@ button[type="submit"]:hover {
     color: #155724;
 }
 
-/* Фокус для полей */
-input:not(.error):focus,
-select:not(.error):focus,
-textarea:not(.error):focus {
-    border-color: #3498db;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+.auth-section {
+    display: block;
+    margin-bottom: 50px;
+    border-radius: 5px;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    background-color: white;
+    padding: 0 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.logout-btn {
+    padding: 5px 10px;
+    background: #dc3545;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.auth-hint {
+    margin-top: 10px;
+    padding: 10px;
+    background: #e2f0fd;
+    border-radius: 4px;
+    font-size: 14px;
 }
