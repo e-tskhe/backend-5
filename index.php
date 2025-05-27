@@ -141,6 +141,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
                 $stmt->execute([$data['id']]);
                 $values['languages'] = $stmt->fetchAll(PDO::FETCH_COLUMN);
             }
+            
+            $stmt = $pdo->prepare("UPDATE application SET name=?, phone=?, email=?, 
+                                 birthdate=?, gender=?, bio=? WHERE user_id=?");
+            $stmt->execute([
+                $_POST['name'], $_POST['phone'], $_POST['email'],
+                $_POST['birthdate'], $_POST['gender'], $_POST['bio'],
+                $_SESSION['uid']
+            ]);
+
+            // Обновление языков программирования
+            $pdo->prepare("DELETE FROM application_language WHERE application_id IN 
+                         (SELECT id FROM application WHERE user_id=?)")
+               ->execute([$_SESSION['uid']]);
+
+            $appId = $pdo->query("SELECT id FROM application WHERE user_id=" . $_SESSION['uid'])
+                        ->fetchColumn();
+            
+            $langStmt = $pdo->prepare("INSERT INTO programming_language (name) VALUES (?) 
+                                      ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)");
+            $appLangStmt = $pdo->prepare("INSERT INTO application_language (application_id, language_id) 
+                                        VALUES (?, ?)");
+
+            foreach ($_POST['languages'] as $lang) {
+                $langStmt->execute([$lang]);
+                $appLangStmt->execute([$appId, $pdo->lastInsertId()]);
+            }
+
+            setcookie('save', '1');
+            header('Location: index.php');
+        } 
         }
         catch(PDOException $e)
         {
