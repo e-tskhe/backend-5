@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             if ($user && md5($_POST['password']) === $user['password_hash']) {
                 // Если все ок, то авторизуем пользователя.
-                $_SESSION['login'] = $_POST['username'];
+                $_SESSION['login'] = $_POST['login'];
                 // Записываем ID пользователя.
                 $_SESSION['uid'] = $user['id'];
                 
