@@ -12,18 +12,17 @@
 header('Content-Type: text/html; charset=UTF-8');
 
 $error = '';
+$session_started = false;
 
 // В суперглобальном массиве $_SESSION хранятся переменные сессии.
 // Будем сохранять туда логин после успешной авторизации.
-$session_started = false;
-if (session_start()) {
-    $session_started = true;
-    if (!empty($_SESSION['login'])) {
-        // Если есть логин в сессии, то пользователь уже авторизован.
-        // Делаем перенаправление на форму.
-        header('Location: index.php');
-        exit();
-    }
+
+if (session_status() === PHP_SESSION_NONE) {
+    $session_started = session_start();
+}
+if ($session_started && !empty($_SESSION['login'])) {
+    header('Location: index.php');
+    exit();
 }
 
 // Обработка POST-запроса

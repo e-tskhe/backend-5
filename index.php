@@ -146,7 +146,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
         {
             $messages[] = 'Ошибка при загрузке данных: ' . $e->getMessage();
         }
-        printf('Вход с логином %s, uid %d', $_SESSION['login'], $_SESSION['uid']);
     }
     // Включаем содержимое файла form.php.
     // В нем будут доступны переменные $messages, $errors и $values для вывода
