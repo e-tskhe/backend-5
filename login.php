@@ -12,21 +12,18 @@
 header('Content-Type: text/html; charset=UTF-8');
 
 $error = '';
-$session_started = false;
 
-// В суперглобальном массиве $_SESSION хранятся переменные сессии.
-// Будем сохранять туда логин после успешной авторизации.
+session_start();
 
-if (session_status() === PHP_SESSION_NONE) {
-    $session_started = session_start();
-}
-if ($session_started && !empty($_SESSION['login'])) {
+if (!empty($_SESSION['login'])) {
     header('Location: index.php');
     exit();
 }
 
 // Обработка POST-запроса
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $login = trim($_POST['login'] ?? '');
+    $password = trim($_POST['password'] ?? '');
     if (empty($_POST['login'])) {
         $error = 'Введите логин';
     } elseif (empty($_POST['password'])) {
@@ -47,12 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && md5($_POST['password']) === $user['password_hash']) {
-                // Успешная авторизация
-                if (!$session_started) {
-                    session_start();
-                }
                 // Если все ок, то авторизуем пользователя.
-                $_SESSION['login'] = $_POST['login'];
+                $_SESSION['login'] = $_POST['username'];
                 // Записываем ID пользователя.
                 $_SESSION['uid'] = $user['id'];
                 
